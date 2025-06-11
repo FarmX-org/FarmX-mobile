@@ -8,6 +8,7 @@ export default function RootLayout() {
       screenOptions={{
         headerShown: true,
       }}
+      
       drawerContent={(props) => <Navbar {...props} />}
     >
       <Drawer.Screen name="login" options={{ drawerLabel: 'Home' }} />
