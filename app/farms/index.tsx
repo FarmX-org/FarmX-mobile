@@ -1,5 +1,6 @@
+import { useFocusEffect } from "@react-navigation/native";
 import { useRouter } from "expo-router";
-import React, { useEffect, useState } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import {
   ActivityIndicator,
   Alert,
@@ -10,7 +11,8 @@ import {
   View
 } from "react-native";
 import { Button, Card, Dialog, Paragraph, Portal } from "react-native-paper";
-import { apiRequest } from "./services/apiRequest";
+import { apiRequest } from "../services/apiRequest";
+
 
 const FarmListPage = () => {
   const [farms, setFarms] = useState<any[]>([]);
@@ -31,9 +33,12 @@ const FarmListPage = () => {
     }
   };
 
-  useEffect(() => {
+  useFocusEffect(
+  useCallback(() => {
     fetchFarms();
-  }, []);
+  }, [])
+);
+  
 
   useEffect(() => {
     const fetchInfo = async () => {
@@ -90,9 +95,10 @@ const FarmListPage = () => {
           <Text style={styles.title}>🌾 Your Smart Farms</Text>
           <Text style={styles.subtitle}>Manage and track all your farms with ease.</Text>
         </View>
-        <Button buttonColor="#1d9100"  textColor="white" mode="contained" onPress={() => router.push("/farms")}>
-          + Add Farm
+        <Button buttonColor="#1d9100" textColor="white" mode="contained" onPress={() => router.push("/farms/create")}>
+          + New Farm 
         </Button>
+
       </View>
 
       {loading ? (
@@ -117,8 +123,14 @@ const FarmListPage = () => {
             </Card.Content>
             <Card.Actions style={styles.actions}>
               <Button buttonColor="#1d9100"  textColor="white" onPress={() => router.push(`/farms`)}>View Crops</Button>
-              <Button buttonColor="#1d9100"  textColor="white" onPress={() => router.push(`/farms`)}>Orders</Button>
-              <Button buttonColor="#1d9100"  textColor="white" onPress={() => router.push(`/farms`)}>Edit</Button>
+              <Button buttonColor="#1d9100"  textColor="white" onPress={() => router.push(`/farms/${farm.id}/orders`)}>Orders</Button>
+              <Button
+                 buttonColor="#1d9100"
+                 textColor="white"
+                  onPress={() => router.push(`/farms/${farm.id}`)}
+                  >
+                     Edit
+                 </Button>
               <Button buttonColor="#1d9100"  textColor="white" onPress={() => setDeletingFarmId(farm.id)}>Delete</Button>
             </Card.Actions>
           </Card>
