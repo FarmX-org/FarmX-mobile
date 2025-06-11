@@ -1,6 +1,7 @@
 import { useSegments } from 'expo-router';
 import { Drawer } from 'expo-router/drawer';
 import React from 'react';
+import { Provider as PaperProvider } from 'react-native-paper';
 import Navbar from '../components/Navbar';
 
 export default function RootLayout() {
@@ -11,6 +12,8 @@ export default function RootLayout() {
   const shouldHideNavbar = hideNavbarRoutes.includes(currentRoute);
 
   return (
+    <PaperProvider>
+      
     <Drawer
       screenOptions={{
         headerShown: !shouldHideNavbar,
@@ -22,6 +25,8 @@ export default function RootLayout() {
       <Drawer.Screen name="home" options={{ drawerLabel: 'Home' }} />
       <Drawer.Screen name="store" options={{ drawerLabel: 'Store' }} />
       <Drawer.Screen name="cosumerOrdersPage" options={{ drawerLabel: 'Cosumer Orders' }} />
+      <Drawer.Screen name="farms" options={{ drawerLabel: 'Farms' }} />
     </Drawer>
+    </PaperProvider>
   );
 }
