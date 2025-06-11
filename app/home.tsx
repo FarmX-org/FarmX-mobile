@@ -56,7 +56,7 @@ export default function HomeScreen() {
               source={require("../assets/images/log.png")}
               style={styles.icon}
             />
-            <Text style={styles.cardText}>My Farms</Text>
+            <Text style={styles.cardText} onPress={() => router.push("/farms")}>My Farms</Text>
           </TouchableOpacity>
 
           <TouchableOpacity style={styles.card} onPress={() => router.push("/store")}>
