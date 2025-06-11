@@ -1,16 +1,17 @@
+import { router } from "expo-router";
+import LottieView from "lottie-react-native";
 import React from "react";
 import {
+  Image,
   ScrollView,
-  View,
+  StatusBar,
+  StyleSheet,
   Text,
   TouchableOpacity,
-  Image,
-  StyleSheet,
+  View
 } from "react-native";
-import LottieView from "lottie-react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
-import { useSafeAreaInsets } from "react-native-safe-area-context"; 
-import { StatusBar } from "react-native"; 
+ 
 import { DrawerActions, useNavigation } from '@react-navigation/native';
 
 
@@ -32,7 +33,7 @@ export default function HomeScreen() {
   }}
 >
   <Image
-    source={require('../assets/images/farmerr.png')} // أو أيقونة القائمة عندك
+    source={require('../assets/images/farmerr.png')} 
     style={{ width: 24, height: 24 }}
   />
 </TouchableOpacity>
@@ -58,12 +59,13 @@ export default function HomeScreen() {
             <Text style={styles.cardText}>My Farms</Text>
           </TouchableOpacity>
 
-          <TouchableOpacity style={styles.card}>
+          <TouchableOpacity style={styles.card} onPress={() => router.push("/store")}>
             <Image
               source={require("../assets/images/markett.png")}
               style={styles.icon}
             />
-            <Text style={styles.cardText}>Store</Text>
+            <Text style={styles.cardText} >Store</Text>
+
           </TouchableOpacity>
 
           <TouchableOpacity style={styles.card}>

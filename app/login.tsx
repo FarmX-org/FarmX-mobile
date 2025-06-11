@@ -1,23 +1,28 @@
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import { router } from "expo-router";
 import React, { useState } from "react";
 import {
-  View,
-  Text,
-  TextInput,
-  TouchableOpacity,
-  StyleSheet,
   Alert,
   Image,
   KeyboardAvoidingView,
   Platform,
+  StyleSheet,
+  Text,
+  TextInput,
+  TouchableOpacity,
+  View,
 } from "react-native";
-import { router } from "expo-router";
-  import AsyncStorage from '@react-native-async-storage/async-storage';
 
 
 export default function LoginScreen() {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
+  const initialForm = {
+    username: "",
+    password: "",
+  };
+  const [form, setForm] = useState(initialForm);
 
 
 const handleLogin = async () => {
@@ -46,6 +51,8 @@ const handleLogin = async () => {
     await AsyncStorage.setItem("user", JSON.stringify({ name, avatarUrl, roles }));
 
     Alert.alert("Login Successful", `Welcome, ${name}`);
+    
+    setForm(initialForm); 
     router.replace('/home');
   } catch (err: any) {
     setError(err.message || "Invalid username or password");
@@ -92,7 +99,7 @@ const handleLogin = async () => {
 
       {/* Static Image */}
       <Image
-        source={require("../assets/images/logg.png")} // تأكد من وجود الصورة في المسار الصحيح
+        source={require("../assets/images/logg.png")} 
         style={styles.image}
         resizeMode="contain"
       />
