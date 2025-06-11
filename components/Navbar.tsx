@@ -1,25 +1,23 @@
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import { DrawerContentComponentProps } from '@react-navigation/drawer';
+import { router } from 'expo-router';
+import { jwtDecode } from 'jwt-decode';
 import React, { useEffect, useState } from 'react';
 import {
-  View,
   ScrollView,
-  Text,
   StyleSheet,
-  TouchableOpacity,
-  Alert,
+  Text,
+  View
 } from 'react-native';
 import {
   Avatar,
   Drawer,
 } from 'react-native-paper';
-import AsyncStorage from '@react-native-async-storage/async-storage';
-import { useRouter } from 'expo-router';
-import { jwtDecode } from 'jwt-decode';
-import { DrawerContentComponentProps } from '@react-navigation/drawer';
 
 export default function Navbar(props: DrawerContentComponentProps) {
   const { navigation } = props;
   const [user, setUser] = useState<any>(null);
-
+ 
   useEffect(() => {
     const fetchUser = async () => {
       const token = await AsyncStorage.getItem('token');
@@ -29,13 +27,13 @@ export default function Navbar(props: DrawerContentComponentProps) {
           const decoded: any = jwtDecode(token);
           if (Date.now() > decoded.exp * 1000) {
             await AsyncStorage.clear();
-            navigation.navigate('Login');
+            navigation.navigate('login');
             return;
           }
           setUser(JSON.parse(userData));
         } catch {
           await AsyncStorage.clear();
-          navigation.navigate('Login');
+          navigation.navigate('login');
         }
       }
     };
@@ -44,17 +42,40 @@ export default function Navbar(props: DrawerContentComponentProps) {
 
   const handleLogout = async () => {
     await AsyncStorage.clear();
-    navigation.navigate('Login');
+    navigation.navigate('login');
   };
 
   const isFarmer = user?.roles.includes('ROLE_FARMER');
-  const isAdmin = user?.roles.includes('ROLE_ADMIN');
+  const isConsumer = user?.roles.includes('ROLE_CONSUMER');
 
-  const links = [
-    { label: 'Home', route: 'Home' },
-    ...(isFarmer ? [{ label: 'Farms', route: 'Farms' }] : []),
-    ...(isAdmin ? [{ label: 'Dashboard', route: 'Dashboard' }] : []),
+  const commonLinks = [
+    { label: 'Home', href: '/home' },
+    { label: 'About', href: '/about' },
+    { label: 'Contact', href: '/contact' },
   ];
+
+  const farmerLinks = [
+     { label: 'Crops', href: '/crops' },
+    { label: 'Store', href: '/store' },
+    { label: 'Activity', href: '/activites' },
+    { label: 'Farms', href: '/farms' },
+  ];
+
+ 
+  const consumerLinks = [
+    { label: 'Store', href: '/store' },
+    { label: 'Orders', href: '/consumerOrdersPage' },
+
+  ];
+  
+
+  const displayedLinks = [
+    ...commonLinks,
+    ...(isFarmer ? farmerLinks : []),
+    ...(isConsumer ? consumerLinks : []),
+  ];
+
+  
 
   return (
     <View style={styles.drawerContainer}>
@@ -63,11 +84,11 @@ export default function Navbar(props: DrawerContentComponentProps) {
         <Text style={styles.username}>{user?.name}</Text>
       </View>
       <ScrollView style={styles.links}>
-        {links.map((link) => (
+        {displayedLinks.map((link) => (
           <Drawer.Item
             key={link.label}
             label={link.label}
-            onPress={() => navigation.navigate(link.route)}
+            onPress={() => router.push(link.href as any)}
           />
         ))}
         <Drawer.Item label="Logout" icon="logout" onPress={handleLogout} />

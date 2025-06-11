@@ -1,12 +1,10 @@
-import React, { useState } from 'react';
-import { View, Text, TextInput, Button, StyleSheet, Alert, ScrollView, TouchableOpacity } from 'react-native';
 import { Picker } from '@react-native-picker/picker';
-import Constants from 'expo-constants';
-import { useNavigation } from '@react-navigation/native';
 import { router } from 'expo-router';
+import React, { useState } from 'react';
+import { Alert, ScrollView, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
 
 const SignUpScreen = () => {
-  const [form, setForm] = useState({
+  const initialForm = {
     username: '',
     password: '',
     name: '',
@@ -15,8 +13,9 @@ const SignUpScreen = () => {
     street: '',
     email: '',
     role: 'Farmer',
-  });
+  };
 
+  const [form, setForm] = useState(initialForm);
   const [step, setStep] = useState(1);
 
   const handleChange = (name: string, value: string) => {
@@ -37,8 +36,10 @@ const SignUpScreen = () => {
       }
 
       Alert.alert('Success', 'Account created!');
-      router.replace('/login'); 
-      
+      setForm(initialForm); 
+      setStep(1); 
+      router.replace('/login');
+
     } catch (error: any) {
       Alert.alert('Error', error.message || 'Something went wrong');
     }
@@ -46,7 +47,7 @@ const SignUpScreen = () => {
 
   return (
     <ScrollView contentContainerStyle={styles.container}>
-      <Text style={styles.heading}>Sign Up</Text>
+      <Text style={styles.heading}>Create Your Account</Text>
 
       {step === 1 ? (
         <>
@@ -54,12 +55,16 @@ const SignUpScreen = () => {
           <TextInput style={styles.input} placeholder="Password" secureTextEntry value={form.password} onChangeText={text => handleChange('password', text)} />
 
           <Text style={styles.label}>Role</Text>
-          <Picker selectedValue={form.role} onValueChange={value => handleChange('role', value)} style={styles.picker}>
-            <Picker.Item label="Farmer" value="Farmer" />
-            <Picker.Item label="Consumer" value="Consumer" />
-          </Picker>
+          <View style={styles.pickerWrapper}>
+            <Picker selectedValue={form.role} onValueChange={value => handleChange('role', value)} style={styles.picker}>
+              <Picker.Item label="Farmer" value="Farmer" />
+              <Picker.Item label="Consumer" value="Consumer" />
+            </Picker>
+          </View>
 
-          <Button title="Next" onPress={() => setStep(2)} />
+          <TouchableOpacity style={styles.primaryButton} onPress={() => setStep(2)}>
+            <Text style={styles.primaryButtonText}>Next</Text>
+          </TouchableOpacity>
         </>
       ) : (
         <>
@@ -70,11 +75,13 @@ const SignUpScreen = () => {
           <TextInput style={styles.input} placeholder="Email" keyboardType="email-address" value={form.email} onChangeText={text => handleChange('email', text)} />
 
           <View style={styles.row}>
-            <TouchableOpacity style={styles.backButton} onPress={() => setStep(1)}>
-              <Text style={styles.backButtonText}>Back</Text>
+            <TouchableOpacity style={styles.secondaryButton} onPress={() => setStep(1)}>
+              <Text style={styles.secondaryButtonText}>Back</Text>
             </TouchableOpacity>
 
-            <Button title="Sign Up" onPress={handleSubmit} />
+            <TouchableOpacity style={styles.primaryButtonSmall} onPress={handleSubmit}>
+              <Text style={styles.primaryButtonText}>Sign Up</Text>
+            </TouchableOpacity>
           </View>
         </>
       )}
@@ -84,46 +91,78 @@ const SignUpScreen = () => {
 
 const styles = StyleSheet.create({
   container: {
-    padding: 20,
+    padding: 24,
     paddingTop: 60,
-    backgroundColor: '#F7FAFC',
+    backgroundColor: '#F0FFF4',
     flexGrow: 1,
   },
   heading: {
-    fontSize: 28,
+    fontSize: 30,
     fontWeight: 'bold',
-    marginBottom: 24,
+    marginBottom: 28,
     textAlign: 'center',
-    color: '#2F855A',
+    color: '#22543D',
   },
   input: {
     backgroundColor: '#fff',
-    padding: 12,
-    marginBottom: 12,
-    borderRadius: 8,
-    borderColor: '#CBD5E0',
+    padding: 14,
+    marginBottom: 14,
+    borderRadius: 12,
+    borderColor: '#C6F6D5',
     borderWidth: 1,
+    fontSize: 16,
   },
   label: {
     marginTop: 10,
-    marginBottom: 4,
-    fontWeight: 'bold',
+    marginBottom: 6,
+    fontWeight: '600',
+    color: '#2F855A',
+  },
+  pickerWrapper: {
+    backgroundColor: '#fff',
+    borderRadius: 12,
+    borderWidth: 1,
+    borderColor: '#C6F6D5',
+    marginBottom: 20,
+    overflow: 'hidden',
   },
   picker: {
-    marginBottom: 20,
+    height: 50,
+  },
+  primaryButton: {
+    backgroundColor: '#38A169',
+    paddingVertical: 14,
+    borderRadius: 12,
+    alignItems: 'center',
+    marginTop: 10,
+  },
+  primaryButtonSmall: {
+    backgroundColor: '#38A169',
+    paddingVertical: 10,
+    paddingHorizontal: 24,
+    borderRadius: 12,
+    alignItems: 'center',
+  },
+  primaryButtonText: {
+    color: '#fff',
+    fontSize: 16,
+    fontWeight: '600',
+  },
+  secondaryButton: {
+    backgroundColor: '#E6FFFA',
+    paddingVertical: 10,
+    paddingHorizontal: 20,
+    borderRadius: 12,
+  },
+  secondaryButtonText: {
+    color: '#2C7A7B',
+    fontWeight: '500',
   },
   row: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-  },
-  backButton: {
-    backgroundColor: '#E2E8F0',
-    padding: 10,
-    borderRadius: 8,
-  },
-  backButtonText: {
-    color: '#2D3748',
+    marginTop: 20,
   },
 });
 
