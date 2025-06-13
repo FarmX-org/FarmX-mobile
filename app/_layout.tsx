@@ -24,8 +24,9 @@ export default function RootLayout() {
       <Drawer.Screen name="signup" />
       <Drawer.Screen name="home" options={{ drawerLabel: 'Home' }} />
       <Drawer.Screen name="store" options={{ drawerLabel: 'Store' }} />
-      <Drawer.Screen name="cosumerOrdersPage" options={{ drawerLabel: 'Cosumer Orders' }} />
+      <Drawer.Screen name="CosumerOrdersPage" options={{ drawerLabel: 'Cosumer Orders' }} />
       <Drawer.Screen name="farms" options={{ drawerLabel: 'Farms' }} />
+      <Drawer.Screen name="crops" options={{ drawerLabel: 'Crops' }} />
     </Drawer>
     </PaperProvider>
   );
