@@ -8,6 +8,7 @@
     "scheme": "farmxapp",
     "userInterfaceStyle": "automatic",
     "newArchEnabled": true,
+    "sdkVersion": "53.0.0",
     "ios": {
       "supportsTablet": true
     },

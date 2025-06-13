@@ -1,15 +1,15 @@
-import ProductCard from "@/components/Cards";
+import ProductCard from "@/components/ProductCards";
 import Sidebar from "@/components/Sidebar";
 import { MaterialIcons } from "@expo/vector-icons";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { router } from "expo-router";
 import React, { useEffect, useState } from "react";
 import {
-    FlatList,
-    Image,
-    StyleSheet,
-    TouchableOpacity,
-    View
+  FlatList,
+  Image,
+  StyleSheet,
+  TouchableOpacity,
+  View
 } from "react-native";
 import Toast from "react-native-toast-message";
 import { apiRequest } from "./services/apiRequest";

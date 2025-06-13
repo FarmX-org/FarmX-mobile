@@ -64,7 +64,7 @@ export default function Navbar(props: DrawerContentComponentProps) {
  
   const consumerLinks = [
     { label: 'Store', href: '/store' },
-    { label: 'Orders', href: '/consumerOrdersPage' },
+    { label: 'Orders', href: '/ConsumerOrdersPage' },
 
   ];
   
