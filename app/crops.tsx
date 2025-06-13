@@ -5,10 +5,11 @@ import Lottie from "lottie-react-native";
 import React, { useEffect, useState } from "react";
 import {
   ActivityIndicator,
+  Alert,
   FlatList,
   SafeAreaView,
   StyleSheet,
-  View
+  View,
 } from "react-native";
 import farmGif from "../assets/images/farm.json";
 import flowerGif from "../assets/images/flower.json";
@@ -100,29 +101,37 @@ const matchesSearch = (crop.name || '').toLowerCase().includes(searchTerm.toLowe
   };
 
   const handleSendToStore = async (data: {
-    name: string;
-    category: string;
-    quantity: number;
-    imageUrl: string;
-    description: string;
-    plantedCropId: number;
-    price: number;
-    unit: string;
-  }) => {
-    try {
-      await apiRequest("/api/products", "POST", {
-        ...data,
-        available: true
-      });
+  name: string;
+  category: string;
+  quantity: number;
+  imageUrl: string;
+  description: string;
+  plantedCropId: number;
+  price: number;
+  unit: string;
+}) => {
+  try {
+    await apiRequest("/products", "POST", {
+      ...data,
+      available: true,
+    });
+    
 
-      await handleQuantityUpdate(
-        data.quantity,
-        data.plantedCropId
-      );
-    } catch (err) {
-      console.error("Error sending to store:", err);
-    }
-  };
+    Alert.alert("Success", "Crop sent to store successfully!");
+
+    const currentCrop = cropsData.find(c => c.id === data.plantedCropId);
+    const newQuantity = (currentCrop?.quantity || 0) - data.quantity;
+    if (data.quantity > (currentCrop?.quantity || 0)) {
+  Alert.alert("Error", "Not enough quantity to send!");
+  return;
+}
+
+
+    await handleQuantityUpdate(newQuantity, data.plantedCropId);
+  } catch (err) {
+    console.error("Error sending to store:", err);
+  }
+};
 
   const handleUpdateCrop = async (updatedCrop: Crop) => {
     try {
@@ -183,7 +192,7 @@ const matchesSearch = (crop.name || '').toLowerCase().includes(searchTerm.toLowe
           data={filteredCrops}
           renderItem={renderItem}
           keyExtractor={(item) => item.id.toString()}
-          numColumns={2}
+          numColumns={1}
           contentContainerStyle={styles.gridContainer}
           ListHeaderComponent={
             <View style={styles.lottieContainer}>
