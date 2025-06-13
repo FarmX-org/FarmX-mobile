@@ -1,4 +1,3 @@
-import { MotiView } from 'moti';
 import React, { useState } from 'react';
 import {
   Dimensions,
@@ -78,104 +77,97 @@ export const CropCard: React.FC<CropCardProps> = ({
 
  return (
   <Pressable onPress={handleFlip}>
-    <View style={styles.container}>
-      {/* Front Side */}
-      <MotiView
-        style={[styles.card, styles.frontCard]}
-        from={{ rotateY: isFlipped ? '0deg' : '180deg' }}
-        animate={{ rotateY: isFlipped ? '180deg' : '0deg' }}
-        transition={{ type: 'timing', duration: 400 }}
-      >
-        <Chip
-          style={[
-            styles.badge,
-            { backgroundColor: available ? 'green' : 'red' },
-          ]}
-          textStyle={{ color: 'white' }}
-        >
-          {available ? 'Available' : 'Unavailable'}
-        </Chip>
-        <Image source={{ uri: imageSrc }} style={styles.image} />
-        <Text style={styles.title}>{title}</Text>
-      </MotiView>
+  <View style={styles.container}>
+    <View style={[styles.card, isFlipped ? styles.backCard : styles.frontCard]}>
+      {isFlipped ? (
+        // Back Side
+        <>
+          <Text style={styles.label}>Status: {status}</Text>
+          <Text style={styles.label}>Quantity: {quantity} units</Text>
+          <Text style={styles.label}>Planted: {formattedDate(plantedDate)}</Text>
+          <Text style={styles.label}>Estimated: {formattedDate(estimatedHarvestDate)}</Text>
+          <Text style={styles.label}>Harvested: {formattedDate(actualHarvestDate)}</Text>
+          {notes && <Text style={styles.label}>Notes: {notes}</Text>}
 
-      {/* Back Side */}
-      <MotiView
-        style={[styles.card, styles.backCard]}
-        from={{ rotateY: isFlipped ? '180deg' : '0deg' }}
-        animate={{ rotateY: isFlipped ? '0deg' : '180deg' }}
-        transition={{ type: 'timing', duration: 400 }}
-      >
-        <Text style={styles.label}>Status: {status}</Text>
-        <Text style={styles.label}>Quantity: {quantity} units</Text>
-        <Text style={styles.label}>Planted: {formattedDate(plantedDate)}</Text>
-        <Text style={styles.label}>Estimated: {formattedDate(estimatedHarvestDate)}</Text>
-        <Text style={styles.label}>Harvested: {formattedDate(actualHarvestDate)}</Text>
-        {notes && <Text style={styles.label}>Notes: {notes}</Text>}
-
-        <View style={styles.actions}>
-          <Button icon="delete" mode="text" textColor="red" onPress={() => onDelete?.(id)}>
-            Delete
-          </Button>
-          <Button icon="pencil" mode="text" onPress={() => onEdit?.(id)}>
-            Edit
-          </Button>
-          {available && (
-            <Button icon="truck" mode="text" onPress={handleSend}>
-              Send
+          <View style={styles.actions}>
+            <Button icon="delete" mode="text" textColor="red" onPress={() => onDelete?.(id)}>
+              Delete
             </Button>
-          )}
-        </View>
-      </MotiView>
+            <Button icon="pencil" mode="text" onPress={() => onEdit?.(id)}>
+              Edit
+            </Button>
+            {available && (
+              <Button icon="truck" mode="text" onPress={handleSend}>
+                Send
+              </Button>
+            )}
+          </View>
+        </>
+      ) : (
+        // Front Side
+        <>
+          <Chip
+            style={[styles.badge, { backgroundColor: available ? 'green' : 'red' }]}
+            textStyle={{ color: 'white' }}
+          >
+            {available ? 'Available' : 'Unavailable'}
+          </Chip>
+          <Image source={{ uri: imageSrc }} style={styles.image} />
+          <Text style={styles.title}>{title}</Text>
+        </>
+      )}
     </View>
-  </Pressable>
+  </View>
+</Pressable>
+
 );
 
 };
 
-const CARD_WIDTH = width / 2 - 24;
 
 const styles = StyleSheet.create({
   container: {
-    width: CARD_WIDTH,
-    height: 340,
-    marginVertical: 16,
-    marginHorizontal: 8,
-    transform: [{ perspective: 1000 }],
-  },
-  cardFace: {
-    flex: 1,
-    position: 'relative',
-  },
-  card: {
-  position: 'absolute',
+  width: width - 32, 
+  alignSelf: 'center',
+  marginVertical: 12,
+
+
+},
+
+ card: {
   width: '100%',
-  height: '100%',
+  height: 340,
   borderRadius: 16,
   overflow: 'hidden',
   padding: 12,
-  backfaceVisibility: 'hidden',
+  backgroundColor: '#ffffff',
+  justifyContent: 'space-between',
+  shadowColor: '#000',
+  shadowOffset: { width: 0, height: 4 },
+  shadowOpacity: 0.1,
+  shadowRadius: 6,
+  elevation: 4,
 },
 
-  showFace: {
-    zIndex: 1,
-  },
   frontCard: {
-    backgroundColor: '#fff',
     alignItems: 'center',
+    backgroundColor: '#ffffff',
   },
   backCard: {
     backgroundColor: '#f0fdf4',
-    justifyContent: 'space-between',
   },
   image: {
     height: 180,
     width: '100%',
     borderRadius: 12,
+    resizeMode: 'cover',
   },
   badge: {
     marginBottom: 8,
     alignSelf: 'center',
+    borderRadius: 16,
+    paddingHorizontal: 8,
+    paddingVertical: 4,
   },
   title: {
     fontSize: 18,

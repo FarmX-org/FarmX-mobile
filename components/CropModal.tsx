@@ -1,15 +1,21 @@
 import * as ImagePicker from 'expo-image-picker';
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState } from 'react';
 import {
-    Button,
-    Image,
-    ScrollView,
-    StyleSheet,
-    Switch,
-    Text,
-    View
-} from "react-native";
-import { Dialog, Button as PaperButton, TextInput as PaperInput, Portal } from "react-native-paper";
+  Image,
+  ScrollView,
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  View,
+} from 'react-native';
+import {
+  Dialog,
+  Divider,
+  Button as PaperButton,
+  TextInput as PaperInput,
+  Portal,
+  Surface,
+} from 'react-native-paper';
 
 interface BaseCrop {
   id: number;
@@ -24,7 +30,6 @@ interface CropModalProps {
   onSave: (crop: any) => void;
   farmId?: number | null;
   allCrops: BaseCrop[];
-  
 }
 
 const CropModal: React.FC<CropModalProps> = ({
@@ -36,13 +41,13 @@ const CropModal: React.FC<CropModalProps> = ({
   allCrops,
 }) => {
   const [cropData, setCropData] = useState<any>({
-    cropId: "",
-    name: "",
-    category: "",
+    cropId: '',
+    name: '',
+    category: '',
     quantity: 0,
-    status: "planted",
-    notes: "",
-    imageUrl: "",
+    status: 'planted',
+    notes: '',
+    imageUrl: '',
     available: true,
     farmId: null,
   });
@@ -56,13 +61,13 @@ const CropModal: React.FC<CropModalProps> = ({
       });
     } else {
       setCropData({
-        cropId: "",
-        name: "",
-        category: "",
+        cropId: '',
+        name: '',
+        category: '',
         quantity: 0,
-        status: "planted",
-        notes: "",
-        imageUrl: "",
+        status: 'planted',
+        notes: '',
+        imageUrl: '',
         available: true,
         farmId: farmId ?? null,
       });
@@ -72,7 +77,7 @@ const CropModal: React.FC<CropModalProps> = ({
   const handleImageUpload = async () => {
     const permission = await ImagePicker.requestMediaLibraryPermissionsAsync();
     if (!permission.granted) {
-      alert("Permission to access media library is required.");
+      alert('Permission to access media library is required.');
       return;
     }
 
@@ -90,7 +95,7 @@ const CropModal: React.FC<CropModalProps> = ({
   const handleSave = () => {
     const cropIdNumber = Number(cropData.cropId);
     if (!cropIdNumber) {
-      alert("Please select a crop.");
+      alert('Please select a crop.');
       return;
     }
 
@@ -106,16 +111,22 @@ const CropModal: React.FC<CropModalProps> = ({
 
   return (
     <Portal>
-      <Dialog visible={isOpen} onDismiss={onClose}>
-        <Dialog.Title>{selectedCrop ? "Edit Crop" : "Add New Crop"}</Dialog.Title>
+      <Dialog style={styles.dialog} visible={isOpen} onDismiss={onClose}>
+        <Dialog.Title style={styles.title}>
+          {selectedCrop ? 'Edit Crop' : 'Add New Crop'}
+        </Dialog.Title>
+        <Divider />
         <Dialog.ScrollArea>
-          <ScrollView style={{ paddingHorizontal: 20 }}>
-            <Text style={styles.label}>Select Crop</Text>
-            <View style={styles.picker}>
+          <ScrollView contentContainerStyle={styles.content}>
+            <Text style={styles.label}>Choose Crop</Text>
+            <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.cropList}>
               {allCrops.map((crop) => (
-                <Button
+                <TouchableOpacity
                   key={crop.id}
-                  title={`${crop.name} (${crop.category})`}
+                  style={[
+                    styles.cropButton,
+                    cropData.cropId === crop.id && styles.selectedCropButton,
+                  ]}
                   onPress={() =>
                     setCropData({
                       ...cropData,
@@ -124,10 +135,19 @@ const CropModal: React.FC<CropModalProps> = ({
                       category: crop.category,
                     })
                   }
-                  color={cropData.cropId === crop.id ? "green" : "#ccc"}
-                />
+                >
+                  <Text
+                    style={{
+                      color: cropData.cropId === crop.id ? '#fff' : '#444',
+                      fontWeight: 'bold',
+                    }}
+                  >
+                    {crop.name}
+                  </Text>
+                  <Text style={{ color: '#888', fontSize: 12 }}>{crop.category}</Text>
+                </TouchableOpacity>
               ))}
-            </View>
+            </ScrollView>
 
             <PaperInput
               label="Quantity"
@@ -154,26 +174,44 @@ const CropModal: React.FC<CropModalProps> = ({
               style={styles.input}
             />
 
-            <View style={styles.switchContainer}>
-              <Text>Available</Text>
-              <Switch
-                value={cropData.available}
-                onValueChange={(val) => setCropData({ ...cropData, available: val })}
-              />
+            <View style={styles.switchRow}>
+              <Text style={{ fontWeight: '500' }}>Available:</Text>
+              <PaperButton
+                mode={cropData.available ? 'contained' : 'outlined'}
+                onPress={() => setCropData({ ...cropData, available: !cropData.available })}
+                compact
+              >
+                {cropData.available ? 'Yes' : 'No'}
+              </PaperButton>
             </View>
 
-            <Button title="Upload Image" onPress={handleImageUpload} />
+            <PaperButton
+              icon="image"
+              mode="outlined"
+              onPress={handleImageUpload}
+              style={styles.uploadBtn}
+            >
+              Upload Image
+            </PaperButton>
+
             {cropData.imageUrl ? (
-              <Image
-                source={{ uri: cropData.imageUrl }}
-                style={styles.image}
-              />
+              <Surface style={styles.imageWrapper}>
+                <Image source={{ uri: cropData.imageUrl }} style={styles.image} />
+              </Surface>
             ) : null}
           </ScrollView>
         </Dialog.ScrollArea>
         <Dialog.Actions>
-          <PaperButton onPress={handleSave}>{selectedCrop ? "Update" : "Save"}</PaperButton>
-          <PaperButton onPress={onClose}>Cancel</PaperButton>
+          <PaperButton
+            mode="contained"
+            onPress={handleSave}
+            style={styles.actionBtn}
+          >
+            {selectedCrop ? 'Update' : 'Save'}
+          </PaperButton>
+          <PaperButton onPress={onClose} style={styles.cancelBtn}>
+            Cancel
+          </PaperButton>
         </Dialog.Actions>
       </Dialog>
     </Portal>
@@ -181,28 +219,69 @@ const CropModal: React.FC<CropModalProps> = ({
 };
 
 const styles = StyleSheet.create({
-  input: {
-    marginVertical: 8,
+  dialog: {
+    borderRadius: 15,
+    backgroundColor: '#ffffff',
+    paddingBottom: 10,
+  },
+  title: {
+    textAlign: 'center',
+    fontWeight: 'bold',
+  },
+  content: {
+    paddingHorizontal: 20,
+    paddingBottom: 20,
   },
   label: {
-    marginTop: 8,
-    fontWeight: "bold",
+    marginTop: 10,
+    fontSize: 15,
+    fontWeight: '600',
+    color: '#333',
   },
-  picker: {
-    marginBottom: 12,
-  },
-  switchContainer: {
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "space-between",
+  cropList: {
     marginVertical: 10,
   },
-  image: {
-    width: 100,
-    height: 100,
-    marginTop: 10,
+  cropButton: {
+    paddingVertical: 10,
+    paddingHorizontal: 16,
+    backgroundColor: '#eee',
     borderRadius: 8,
-    alignSelf: "center",
+    marginRight: 8,
+    alignItems: 'center',
+  },
+  selectedCropButton: {
+    backgroundColor: '#4CAF50',
+  },
+  input: {
+    marginVertical: 8,
+    backgroundColor: '#f9f9f9',
+  },
+  switchRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    marginVertical: 14,
+  },
+  uploadBtn: {
+    marginTop: 10,
+  },
+  imageWrapper: {
+    alignSelf: 'center',
+    marginTop: 10,
+    borderRadius: 60,
+    overflow: 'hidden',
+    elevation: 4,
+  },
+  image: {
+    width: 120,
+    height: 120,
+  },
+  actionBtn: {
+    marginRight: 10,
+    backgroundColor: '#4CAF50',
+  },
+  cancelBtn: {
+    borderColor: '#888',
   },
 });
 
