@@ -104,11 +104,10 @@ const SendToStoreModal: React.FC<SendToStoreModalProps> = ({
   );
 }
   return (
-    <Portal>
-      
-      <Dialog visible={isOpen} onDismiss={onClose}>
-        <Dialog.Title>Send to Store</Dialog.Title>
-        <Dialog.Content>
+    <Portal>   
+      <Dialog style={styles.dialog} visible={isOpen} onDismiss={onClose}>
+        <Dialog.Title style={styles.title}>Send to Store</Dialog.Title>
+        <Dialog.Content style={styles.DialogContent}>
           <Text style={styles.label}>Quantity</Text>
           <TextInput
             style={styles.input}
@@ -142,8 +141,8 @@ const SendToStoreModal: React.FC<SendToStoreModalProps> = ({
           />
         </Dialog.Content>
         <Dialog.Actions>
-          <PaperButton onPress={handleSubmit}>Send</PaperButton>
-          <PaperButton onPress={onClose}>Cancel</PaperButton>
+          <PaperButton style={styles.button} onPress={handleSubmit}>Send</PaperButton>
+          <PaperButton style={styles.button} onPress={onClose}>Cancel</PaperButton>
         </Dialog.Actions>
       </Dialog>
     </Portal>
@@ -154,6 +153,7 @@ const styles = StyleSheet.create({
   label: {
     marginTop: 8,
     fontWeight: "bold",
+    color: "black",
   },
   input: {
     borderBottomWidth: 1,
@@ -161,12 +161,38 @@ const styles = StyleSheet.create({
     marginBottom: 12,
     paddingVertical: Platform.OS === "ios" ? 8 : 4,
     fontSize: 16,
+    backgroundColor: "#fff",
   },
   picker: {
     borderWidth: 1,
     borderColor: "#ccc",
     borderRadius: 6,
     marginBottom: 12,
+  },
+  DialogContent: {
+    padding: 20,
+    backgroundColor: "#fff",
+    borderRadius: 10,
+    shadowColor: "#000",
+  },
+  dialog: {
+    backgroundColor: "#fff",
+    borderRadius: 10,
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.25,
+    shadowRadius: 4,
+    elevation: 5,
+  },
+  title: {
+    fontSize: 20,
+    fontWeight: "bold",
+    color: "black",
+    textAlign: "center",
+  },
+  button: {
+    marginHorizontal: 10,
+    backgroundColor: "gray",
   },
 });
 
