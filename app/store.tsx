@@ -1,5 +1,4 @@
 import ProductCard from "@/components/ProductCards";
-import Sidebar from "@/components/Sidebar";
 import { MaterialIcons } from "@expo/vector-icons";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { router } from "expo-router";
@@ -135,17 +134,6 @@ const StorePage = () => {
 
   return (
     <View style={styles.container}>
-      <Sidebar
-        searchTerm={searchTerm}
-        setSearchTerm={setSearchTerm}
-        selectedCategory={selectedCategory}
-        setSelectedCategory={setSelectedCategory}
-        resetFilters={() => {
-          setSearchTerm("");
-          setSelectedCategory("");
-        }}
-      />
-
       <Image source={images[currentImage]} style={styles.bannerImage} />
 
       <FlatList
@@ -178,11 +166,13 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: "#fff",
+    marginTop: 10
   },
   bannerImage: {
     width: "100%",
     height: 200,
-    resizeMode: "cover",
+    resizeMode: "contain",
+    marginBottom: 5,
   },
   list: {
     paddingHorizontal: 16,

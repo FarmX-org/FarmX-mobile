@@ -4,15 +4,18 @@ import { router } from 'expo-router';
 import { jwtDecode } from 'jwt-decode';
 import React, { useEffect, useState } from 'react';
 import {
+  Avatar,
+  Drawer,
+  TouchableRipple,
+} from 'react-native-paper';
+
+import {
   ScrollView,
   StyleSheet,
   Text,
   View
 } from 'react-native';
-import {
-  Avatar,
-  Drawer,
-} from 'react-native-paper';
+
 
 export default function Navbar(props: DrawerContentComponentProps) {
   const { navigation } = props;
@@ -47,6 +50,8 @@ export default function Navbar(props: DrawerContentComponentProps) {
 
   const isFarmer = user?.roles.includes('ROLE_FARMER');
   const isConsumer = user?.roles.includes('ROLE_CONSUMER');
+  const isHandler = user?.roles.includes('ROLE_HANDLER');
+
 
   const commonLinks = [
     { label: 'Home', href: '/home' },
@@ -67,12 +72,16 @@ export default function Navbar(props: DrawerContentComponentProps) {
     { label: 'Orders', href: '/ConsumerOrdersPage' },
 
   ];
+  const handlerLinks = [
+    { label: 'Orders', href: '/handler' },
+  ];
   
 
   const displayedLinks = [
     ...commonLinks,
     ...(isFarmer ? farmerLinks : []),
     ...(isConsumer ? consumerLinks : []),
+    ...(isHandler ? handlerLinks : []),
   ];
 
   
@@ -80,15 +89,25 @@ export default function Navbar(props: DrawerContentComponentProps) {
   return (
     <View style={styles.drawerContainer}>
       <View style={styles.header}>
-        <Avatar.Image size={60} source={{ uri: user?.avatarUrl }} />
-        <Text style={styles.username}>{user?.name}</Text>
+        <View style={styles.header}>
+  <TouchableRipple
+    onPress={() => router.push('/profile')}
+    borderless
+    rippleColor="rgba(0, 0, 0, .1)"
+    style={{ borderRadius: 30 }}
+  >
+    <Avatar.Image size={60} source={{ uri: user?.avatarUrl }} />
+  </TouchableRipple>
+  <Text style={styles.username}>{user?.name}</Text>
+</View>
       </View>
       <ScrollView style={styles.links}>
         {displayedLinks.map((link) => (
-          <Drawer.Item
+          <Drawer.Item          
             key={link.label}
             label={link.label}
             onPress={() => router.push(link.href as any)}
+            
           />
         ))}
         <Drawer.Item label="Logout" icon="logout" onPress={handleLogout} />
@@ -117,4 +136,5 @@ const styles = StyleSheet.create({
   links: {
     paddingHorizontal: 10,
   },
+ 
 });

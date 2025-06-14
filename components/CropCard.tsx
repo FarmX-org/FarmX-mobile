@@ -160,7 +160,7 @@ const styles = StyleSheet.create({
     height: 180,
     width: '100%',
     borderRadius: 12,
-    resizeMode: 'cover',
+    resizeMode: 'contain',
   },
   badge: {
     marginBottom: 8,

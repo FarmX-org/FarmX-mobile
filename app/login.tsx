@@ -102,6 +102,7 @@ const handleLogin = async () => {
         source={require("../assets/images/logg.png")} 
         style={styles.image}
         resizeMode="contain"
+        
       />
     </KeyboardAvoidingView>
   );

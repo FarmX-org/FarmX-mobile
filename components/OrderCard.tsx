@@ -9,7 +9,7 @@ import {
   View
 } from 'react-native';
 import { apiRequest } from '../app/services/apiRequest';
-import CountdownTimer from './CountdownTimer'; // غيّر المسار إذا لزم
+import CountdownTimer from './CountdownTimer';
 
 const getBadgeColor = (status: string) => {
   switch (status.toLowerCase()) {
@@ -22,7 +22,7 @@ const getBadgeColor = (status: string) => {
 
 type OrderCardProps = {
   type: 'CONSUMER' | 'HANDLER' | 'FARMER';
-  order: any; // Replace 'any' with a more specific type if available
+  order: any; 
   onUpdate?: (id: number, status: string, time: string) => void;
 };
 
@@ -100,7 +100,9 @@ if (deliveryTime) url += `&deliveryTime=${encodeURIComponent(deliveryTime)}`;
             onChangeText={setEstimatedTime}
           />
           <Button title="Save"
-           onPress={handleUpdate} />
+           onPress={handleUpdate}
+            color="green"
+            />
           {order.farmOrders.map((farm: { id: number; farmName: string; orderStatus: string; deliveryTime?: string; items: { productName: string; quantity: number; price: number }[] }) => (
             <View key={farm.id} style={styles.section}>
               <Text style={styles.subheading}>Farm: {farm.farmName}</Text>
@@ -180,6 +182,7 @@ const styles = StyleSheet.create({
   bold: {
     fontWeight: 'bold',
   },
+ 
 
 });
 
