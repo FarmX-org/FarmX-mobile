@@ -1,3 +1,4 @@
+import AsyncStorage from "@react-native-async-storage/async-storage";
 import React, { useState } from 'react';
 import {
   Image,
@@ -7,6 +8,7 @@ import {
   TouchableOpacity,
   View,
 } from 'react-native';
+
 
 interface Product {
   id: number;
@@ -26,9 +28,9 @@ interface ProductCardProps {
 
 const ProductCard: React.FC<ProductCardProps> = ({ product, onAddToCart }) => {
   const [selectedQuantity, setSelectedQuantity] = useState('1');
+  const [isConsumer, setIsConsumer] = useState(false);
 
   const handleQuantityChange = (text: string) => {
-    // allow only numeric input
     const numeric = text.replace(/[^0-9]/g, '');
     setSelectedQuantity(numeric);
   };
@@ -39,7 +41,17 @@ const ProductCard: React.FC<ProductCardProps> = ({ product, onAddToCart }) => {
       onAddToCart(product.id, qty);
     }
   };
-
+  const checkConsumerRole = async () => {
+    const roles = await AsyncStorage.getItem('roles');
+    if (roles) {
+      const parsedRoles = JSON.parse(roles);
+      setIsConsumer(parsedRoles.includes('ROLE_CONSUMER'));
+    }
+  };
+  React.useEffect(() => {
+    checkConsumerRole();
+  }, []);
+  
   return (
     <View style={styles.card}>
       <Image source={{ uri: product.imageSrc }} style={styles.image} />
@@ -50,7 +62,7 @@ const ProductCard: React.FC<ProductCardProps> = ({ product, onAddToCart }) => {
         <Text style={styles.detail}>Available: {product.quantity} {product.unit}</Text>
         <Text style={styles.detail}>Price: ${product.price}</Text>
 
-        <View style={styles.quantityRow}>
+      { isConsumer &&  <View style={styles.quantityRow}>
           <Text style={styles.detail}>Qty:</Text>
           <TextInput
             style={styles.input}
@@ -59,12 +71,12 @@ const ProductCard: React.FC<ProductCardProps> = ({ product, onAddToCart }) => {
             onChangeText={handleQuantityChange}
             placeholder="1"
           />
-        </View>
+        </View> }
       </View>
 
-      <TouchableOpacity style={styles.button} onPress={handleAdd}>
-        <Text style={styles.buttonText}>Add to Cart</Text>
-      </TouchableOpacity>
+      { isConsumer && <TouchableOpacity style={styles.button} onPress={handleAdd}>
+       <Text style={styles.buttonText}>Add to Cart</Text>
+      </TouchableOpacity>}
     </View>
   );
 };
@@ -87,7 +99,7 @@ const styles = StyleSheet.create({
     width: '100%',
     height: 160,
     borderRadius: 10,
-    resizeMode: 'cover',
+    resizeMode: 'contain',
     marginBottom: 10,
   },
   info: {

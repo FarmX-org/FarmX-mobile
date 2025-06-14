@@ -1,7 +1,9 @@
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import { router } from "expo-router";
 import LottieView from "lottie-react-native";
-import React from "react";
+import React, { useEffect, useState } from "react";
 import {
+  Alert,
   Image,
   ScrollView,
   StatusBar,
@@ -11,36 +13,46 @@ import {
   View
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
- 
-import { DrawerActions, useNavigation } from '@react-navigation/native';
-
-
 
 export default function HomeScreen() {
-  const navigation = useNavigation();
+  const [roles, setRoles] = useState<string[]>([]);
+  const [isConsumer, setIsConsumer] = useState(false);
+  const [isFarmer, setIsFarmer] = useState(false);
+  const [isHandler, setIsHandler] = useState(false);
+
+  useEffect(() => {
+    AsyncStorage.getItem("roles").then((data) => {
+      if (data) {
+        const parsedRoles = JSON.parse(data);
+        console.log("Loaded roles:", parsedRoles); 
+        setRoles(parsedRoles);
+        setIsConsumer(parsedRoles.includes("ROLE_CONSUMER"));
+        setIsFarmer(parsedRoles.includes("ROLE_FARMER"));
+        setIsHandler(parsedRoles.includes("ROLE_HANDLER"));
+      }
+    });
+  }, []);
+
+  const handleOrdersPress = () => {
+    console.log("isConsumer:", isConsumer, "isFarmer:", isFarmer , "isHandler:", isHandler);
+    if (isConsumer) {
+      router.push("/ConsumerOrdersPage");
+    } else if (isFarmer) {
+      router.push("/farms");
+    }
+    else if (isHandler) {
+      router.push("/handler");
+    }
+     else {
+      Alert.alert("Access Denied", "You don't have access to orders.");
+    }
+  };
 
   return (
     <SafeAreaView style={{ flex: 1, backgroundColor: "#fff" }}>
       <StatusBar barStyle="dark-content" backgroundColor="#2F855A" />
-      <TouchableOpacity
-  onPress={() => navigation.dispatch(DrawerActions.openDrawer())}
-  style={{
-    padding: 16,
-    position: 'absolute',
-    top: 10,
-    left: 10,
-    zIndex: 100,
-  }}
->
-  <Image
-    source={require('../assets/images/farmerr.png')} 
-    style={{ width: 24, height: 24 }}
-  />
-</TouchableOpacity>
 
-
-     <ScrollView contentContainerStyle={{ paddingBottom: 20, marginTop: 0 }}>
-
+      <ScrollView contentContainerStyle={{ paddingBottom: 20, marginTop: 0 }}>
         <LottieView
           source={require("../assets/images/welcome.json")}
           autoPlay
@@ -51,31 +63,30 @@ export default function HomeScreen() {
         <Text style={styles.title}>Welcome to FarmX !</Text>
 
         <View style={{ paddingHorizontal: 20 }}>
-          <TouchableOpacity style={styles.card}>
+         {isFarmer && <TouchableOpacity style={styles.card} onPress={() => router.push("/farms")}>
             <Image
               source={require("../assets/images/log.png")}
               style={styles.icon}
             />
-            <Text style={styles.cardText} onPress={() => router.push("/farms")}>My Farms</Text>
-          </TouchableOpacity>
+            <Text style={styles.cardText}>My Farms</Text>
+          </TouchableOpacity> }
 
-          <TouchableOpacity style={styles.card} onPress={() => router.push("/store")}>
+       {(isFarmer || isConsumer) &&    <TouchableOpacity style={styles.card} onPress={() => router.push("/store")}>
             <Image
               source={require("../assets/images/markett.png")}
               style={styles.icon}
             />
-            <Text style={styles.cardText} >Store</Text>
+            <Text style={styles.cardText}>Go to Store  ツ </Text>
+          </TouchableOpacity>}
 
-          </TouchableOpacity>
-
-          <TouchableOpacity style={styles.card}>
+          <TouchableOpacity style={styles.card} onPress={handleOrdersPress}>
             <LottieView
               source={require("../assets/images/activity.json")}
               autoPlay
               loop
               style={{ width: 40, height: 40, marginRight: 20 }}
             />
-            <Text style={styles.cardText}>Activity</Text>
+            <Text style={styles.cardText}> Orders</Text>
           </TouchableOpacity>
         </View>
       </ScrollView>
@@ -83,21 +94,19 @@ export default function HomeScreen() {
   );
 }
 
-
-
 const styles = StyleSheet.create({
   title: {
     fontSize: 24,
     fontWeight: "bold",
     textAlign: "center",
-    marginVertical: 0,
+    marginVertical: 20,
     color: "#2F855A",
   },
   card: {
     backgroundColor: "#E6F4EA",
     borderRadius: 12,
     padding: 20,
-    marginVertical: 10,
+    marginVertical: 30,
     flexDirection: "row",
     alignItems: "center",
     elevation: 3,
