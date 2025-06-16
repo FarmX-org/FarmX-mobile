@@ -6,10 +6,12 @@ import {
   StyleSheet,
   Text,
   TextInput,
+  ToastAndroid,
   View
 } from 'react-native';
 import { apiRequest } from '../app/services/apiRequest';
 import CountdownTimer from './CountdownTimer';
+
 
 const getBadgeColor = (status: string) => {
   switch (status.toLowerCase()) {
@@ -31,6 +33,13 @@ const OrderCard: React.FC<OrderCardProps> = ({ type, order, onUpdate }) => {
   const [estimatedTime, setEstimatedTime] = useState(order.estimatedDeliveryTime || '');
   const [deliveryTime, setDeliveryTime] = useState(order.deliveryTime || '');
   const [showDatePicker, setShowDatePicker] = useState(false);
+  const [otp, setOtp] = useState('');
+  const [submitting, setSubmitting] = useState(false);
+  const [code, setCode] = useState('');
+  const showToast = (message: string) => {
+  ToastAndroid.show(message, ToastAndroid.SHORT);
+};
+
 
   const handleUpdate = async () => {
     try {
@@ -52,6 +61,43 @@ if (deliveryTime) url += `&deliveryTime=${encodeURIComponent(deliveryTime)}`;
       alert('Failed to update order.');
     }
   };
+  const confirmDelivery = async () => {
+  setSubmitting(true);
+  onUpdate?.(order.id, status, deliveryTime || estimatedTime);
+
+  try {
+    await apiRequest(`/orders/handler/${order.id}/deliver?code=${otp}`, 'PUT');
+    showToast('Delivery confirmed!');
+    onUpdate?.(order.id, 'DELIVERED', deliveryTime || estimatedTime);
+  } catch (err: any) {
+    const errorMessage = err?.response?.data?.message || 'Pin code is incorrect';
+    showToast(`Error: ${errorMessage}`);
+  } finally {
+    setSubmitting(false);
+  }
+};
+
+const handleRegenerateCode = async () => {
+  try {
+    await apiRequest(`/orders/consumer/${order.id}/regenerate-code`, 'PUT');
+    showToast('New code generated successfully!');
+  } catch (err: any) {
+    const errorMessage = err?.response?.data?.message || 'An error occurred.';
+    showToast(`Error: ${errorMessage}`);
+  }
+};
+
+const showGenerateCode = async () => {
+  try {
+    const response = await apiRequest(`/orders/consumer/${order.id}/delivery-code`);
+    setCode(response);
+    console.log(response);
+    showToast('Code shown!');
+  } catch (err: any) {
+    const errorMessage = err?.response?.data?.message || 'An error occurred.';
+    showToast(`Error: ${errorMessage}`);
+  }
+};
 
   const renderItem = ({ item }: { item: { productName: string; quantity: number; price: number } }) => (
     <View style={styles.itemBox}>
@@ -73,7 +119,20 @@ if (deliveryTime) url += `&deliveryTime=${encodeURIComponent(deliveryTime)}`;
 <CountdownTimer targetDate={order.estimatedDeliveryTime} />
 ) : (
   <Text>Not ready yet</Text>
+
 )}
+{order.orderStatus === 'READY' && (
+  <>
+    <Button title="Regenerate Code" onPress={handleRegenerateCode} color="green" />
+    <Button title="Show Code" onPress={showGenerateCode} color="green" />
+    {code !== '' && (
+      <Text style={{ marginVertical: 6, fontWeight: 'bold' }}>Delivery Code: {code}</Text>
+    )}
+  </>
+)}
+
+          
+         
           {order.farmOrders.map((farm: { id: number; farmName: string; items: { productName: string; quantity: number; price: number }[] }) => (
             <View key={farm.id} style={styles.section}>
               <Text style={styles.subheading}>Farm: {farm.farmName}</Text>
@@ -103,6 +162,34 @@ if (deliveryTime) url += `&deliveryTime=${encodeURIComponent(deliveryTime)}`;
            onPress={handleUpdate}
             color="green"
             />
+          {order.orderStatus === 'READY' && (
+  <>
+    <Text style={styles.subheading}>Enter Delivery PIN:</Text>
+    <View style={styles.pinContainer}>
+      {Array(6).fill(0).map((_, index) => (
+        <TextInput
+          key={index}
+          style={styles.pinInput}
+          keyboardType="number-pad"
+          maxLength={1}
+          value={otp[index] || ''}
+          onChangeText={(text) => {
+            const newOtp = otp.split('');
+            newOtp[index] = text;
+            setOtp(newOtp.join('').slice(0, 6));
+          }}
+        />
+      ))}
+    </View>
+    <Button
+      title="Confirm Delivery"
+      onPress={confirmDelivery}
+      color="green"
+      disabled={submitting || otp.length < 6}
+    />
+  </>
+)}
+
           {order.farmOrders.map((farm: { id: number; farmName: string; orderStatus: string; deliveryTime?: string; items: { productName: string; quantity: number; price: number }[] }) => (
             <View key={farm.id} style={styles.section}>
               <Text style={styles.subheading}>Farm: {farm.farmName}</Text>
@@ -182,6 +269,23 @@ const styles = StyleSheet.create({
   bold: {
     fontWeight: 'bold',
   },
+  pinContainer: {
+  flexDirection: 'row',
+  justifyContent: 'space-between',
+  marginVertical: 10,
+  gap: 5, 
+},
+pinInput: {
+  borderWidth: 1,
+  borderColor: '#ccc',
+  borderRadius: 6,
+  width: 45,
+  height: 50,
+  textAlign: 'center',
+  fontSize: 20,
+  backgroundColor: '#fff',
+},
+
  
 
 });
