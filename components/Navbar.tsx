@@ -57,6 +57,8 @@ export default function Navbar(props: DrawerContentComponentProps) {
     { label: 'Home', href: '/home' },
     { label: 'About', href: '/about' },
     { label: 'Contact', href: '/contact' },
+    { label: 'Messages', href: '/chat' },
+
   ];
 
   const farmerLinks = [
