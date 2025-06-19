@@ -24,6 +24,8 @@ interface Product {
   unit: string;
   quantity: number;
   description: string;
+  rating: number;
+  ratingCount: number;
 }
 
 const StorePage = () => {
@@ -53,6 +55,8 @@ const StorePage = () => {
           unit: product.unit || "",
           quantity: product.quantity || 0,
           description: product.description || "",
+          rating: product.rating || 0,
+          ratingCount: product.ratingCount || 0,
         }));
         setProducts(formatted);
       } catch (err: any) {

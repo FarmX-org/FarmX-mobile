@@ -1,10 +1,19 @@
+import FarmFeedbackSection from '@/components/FarmFeedbackSection';
 import OrderCard from '@/components/OrderCard';
 import React, { useEffect, useState } from 'react';
-import { ActivityIndicator, FlatList, StyleSheet, Text, View } from 'react-native';
+import {
+  ActivityIndicator,
+  FlatList,
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  View,
+} from 'react-native';
 import { apiRequest } from './services/apiRequest';
 
 interface OrderItemDTO {
   productName: string;
+  productId: number;
   quantity: number;
   price: number;
 }
@@ -30,6 +39,7 @@ const ConsumerOrdersPage = () => {
   const [orders, setOrders] = useState<OrderDTO[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
+  const [expandedOrderId, setExpandedOrderId] = useState<number | null>(null);
 
   useEffect(() => {
     apiRequest('/orders/consumer')
@@ -37,6 +47,10 @@ const ConsumerOrdersPage = () => {
       .catch(() => setError('Failed to load orders'))
       .finally(() => setLoading(false));
   }, []);
+
+  const toggleFeedbackSection = (orderId: number) => {
+    setExpandedOrderId((prev) => (prev === orderId ? null : orderId));
+  };
 
   if (loading) return <ActivityIndicator size="large" style={{ marginTop: 20 }} />;
   if (error) return <Text style={styles.errorText}>{error}</Text>;
@@ -46,8 +60,33 @@ const ConsumerOrdersPage = () => {
       <Text style={styles.header}>My Orders</Text>
       <FlatList
         data={orders}
-        renderItem={({ item }) => <OrderCard key={item.id} type="CONSUMER" order={item} />}
         keyExtractor={(item) => item.id.toString()}
+        renderItem={({ item }) => (
+          <View style={styles.orderSection}>
+            <OrderCard key={item.id} type="CONSUMER" order={item} />
+            
+           {item.orderStatus === 'DELIVERED' && (
+  <>
+    <TouchableOpacity
+      style={styles.button}
+      onPress={() => toggleFeedbackSection(item.id)}
+    >
+      <Text style={styles.buttonText}>
+        {expandedOrderId === item.id ? 'Hide Feedback ' : 'Show Feedback'}
+      </Text>
+    </TouchableOpacity>
+
+    {expandedOrderId === item.id && (
+      <FarmFeedbackSection
+        farmOrders={item.farmOrders}
+        orderId={item.id}
+      />
+    )}
+  </>
+)}
+
+          </View>
+        )}
       />
     </View>
   );
@@ -68,6 +107,23 @@ const styles = StyleSheet.create({
     color: 'red',
     marginTop: 20,
     padding: 16,
+  },
+  orderSection: {
+    marginBottom: 20,
+    paddingBottom: 16,
+    borderBottomWidth: 1,
+    borderColor: '#eee',
+  },
+  button: {
+    backgroundColor: 'green',
+    padding: 10,
+    marginTop: 10,
+    borderRadius: 6,
+    alignItems: 'center',
+  },
+  buttonText: {
+    fontWeight: '600',
+    color: 'White',
   },
 });
 
