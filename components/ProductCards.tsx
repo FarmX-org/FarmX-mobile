@@ -19,6 +19,8 @@ interface Product {
   price: number;
   unit: string;
   description: string;
+  rating: number;
+  ratingCount: number;
 }
 
 interface ProductCardProps {
@@ -57,22 +59,29 @@ const ProductCard: React.FC<ProductCardProps> = ({ product, onAddToCart }) => {
       <Image source={{ uri: product.imageSrc }} style={styles.image} />
 
       <View style={styles.info}>
-        <Text style={styles.name}>{product.title}</Text>
-        <Text style={styles.detail}>Category: {product.category}</Text>
-        <Text style={styles.detail}>Available: {product.quantity} {product.unit}</Text>
-        <Text style={styles.detail}>Price: ${product.price}</Text>
+  <Text style={styles.name}>{product.title}</Text>
+  <Text style={styles.detail}>Category: {product.category}</Text>
+  <Text style={styles.detail}>Available: {product.quantity} {product.unit}</Text>
+  <Text style={styles.detail}>Price: ${product.price}</Text>
 
-      { isConsumer &&  <View style={styles.quantityRow}>
-          <Text style={styles.detail}>Qty:</Text>
-          <TextInput
-            style={styles.input}
-            keyboardType="numeric"
-            value={selectedQuantity}
-            onChangeText={handleQuantityChange}
-            placeholder="1"
-          />
-        </View> }
-      </View>
+  <Text style={styles.detail}>
+    Rating: {product.rating.toFixed(1)} ⭐ ({product.ratingCount})
+  </Text>
+
+  {isConsumer && (
+    <View style={styles.quantityRow}>
+      <Text style={styles.detail}>Qty:</Text>
+      <TextInput
+        style={styles.input}
+        keyboardType="numeric"
+        value={selectedQuantity}
+        onChangeText={handleQuantityChange}
+        placeholder="1"
+      />
+    </View>
+  )}
+</View>
+
 
       { isConsumer && <TouchableOpacity style={styles.button} onPress={handleAdd}>
        <Text style={styles.buttonText}>Add to Cart</Text>

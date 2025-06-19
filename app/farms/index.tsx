@@ -1,3 +1,4 @@
+import FarmRatingModal from "@/components/FarmRatingModal";
 import { useFocusEffect } from "@react-navigation/native";
 import { useRouter } from "expo-router";
 import React, { useCallback, useEffect, useState } from "react";
@@ -20,6 +21,8 @@ const FarmListPage = () => {
   const [deletingFarmId, setDeletingFarmId] = useState<number | null>(null);
   const [soilTypes, setSoilTypes] = useState<Record<number, string>>({});
   const [locationNames, setLocationNames] = useState<Record<number, string>>({});
+  const [selectedFarmId, setSelectedFarmId] = useState<number | null>(null);
+  const [selectedFarmName, setSelectedFarmName] = useState<string>("");
   const router = useRouter();
 
   const fetchFarms = async () => {
@@ -132,6 +135,17 @@ const FarmListPage = () => {
                      Edit
                  </Button>
               <Button buttonColor="#1d9100"  textColor="white" onPress={() => setDeletingFarmId(farm.id)}>Delete</Button>
+              <Button
+  buttonColor="#1d9100"
+  textColor="white"
+  onPress={() => {
+    setSelectedFarmId(farm.id);
+    setSelectedFarmName(farm.name);
+  }}
+>
+  Show Feedback
+</Button>
+
             </Card.Actions>
           </Card>
         ))
@@ -149,6 +163,15 @@ const FarmListPage = () => {
           </Dialog.Actions>
         </Dialog>
       </Portal>
+      {selectedFarmId !== null && (
+  <FarmRatingModal
+    isVisible={true}
+    onClose={() => setSelectedFarmId(null)}
+    farmId={selectedFarmId}
+    farmName={selectedFarmName}
+  />
+)}
+
     </ScrollView>
   );
 };
