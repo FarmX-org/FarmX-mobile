@@ -1,26 +1,15 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { DrawerContentComponentProps } from '@react-navigation/drawer';
-import { router } from 'expo-router';
+import { DrawerContentScrollView, DrawerItem } from '@react-navigation/drawer';
+import { useRouter } from 'expo-router';
 import { jwtDecode } from 'jwt-decode';
 import React, { useEffect, useState } from 'react';
-import {
-  Avatar,
-  Drawer,
-  TouchableRipple,
-} from 'react-native-paper';
+import { StyleSheet, Text, View } from 'react-native';
+import { Avatar, TouchableRipple } from 'react-native-paper';
 
-import {
-  ScrollView,
-  StyleSheet,
-  Text,
-  View
-} from 'react-native';
-
-
-export default function Navbar(props: DrawerContentComponentProps) {
-  const { navigation } = props;
+export default function Navbar(props: any) {
+  const router = useRouter();
   const [user, setUser] = useState<any>(null);
- 
+
   useEffect(() => {
     const fetchUser = async () => {
       const token = await AsyncStorage.getItem('token');
@@ -30,13 +19,13 @@ export default function Navbar(props: DrawerContentComponentProps) {
           const decoded: any = jwtDecode(token);
           if (Date.now() > decoded.exp * 1000) {
             await AsyncStorage.clear();
-            navigation.navigate('login');
+            router.replace('/login');
             return;
           }
           setUser(JSON.parse(userData));
         } catch {
           await AsyncStorage.clear();
-          navigation.navigate('login');
+          router.replace('/login');
         }
       }
     };
@@ -45,13 +34,12 @@ export default function Navbar(props: DrawerContentComponentProps) {
 
   const handleLogout = async () => {
     await AsyncStorage.clear();
-    navigation.navigate('login');
+    router.replace('/login');
   };
 
   const isFarmer = user?.roles.includes('ROLE_FARMER');
   const isConsumer = user?.roles.includes('ROLE_CONSUMER');
   const isHandler = user?.roles.includes('ROLE_HANDLER');
-
 
   const commonLinks = [
     { label: 'Home', href: '/home' },
@@ -62,22 +50,19 @@ export default function Navbar(props: DrawerContentComponentProps) {
   ];
 
   const farmerLinks = [
-     { label: 'Crops', href: '/crops' },
+    { label: 'Crops', href: '/crops' },
     { label: 'Store', href: '/store' },
-    { label: 'Activity', href: '/activites' },
     { label: 'Farms', href: '/farms' },
   ];
 
- 
   const consumerLinks = [
     { label: 'Store', href: '/store' },
     { label: 'Orders', href: '/ConsumerOrdersPage' },
-
   ];
+
   const handlerLinks = [
     { label: 'Orders', href: '/handler' },
   ];
-  
 
   const displayedLinks = [
     ...commonLinks,
@@ -86,39 +71,43 @@ export default function Navbar(props: DrawerContentComponentProps) {
     ...(isHandler ? handlerLinks : []),
   ];
 
-  
-
   return (
     <View style={styles.drawerContainer}>
       <View style={styles.header}>
-        <View style={styles.header}>
-  <TouchableRipple
-    onPress={() => router.push('/profile')}
-    borderless
-    rippleColor="rgba(0, 0, 0, .1)"
-    style={{ borderRadius: 30 }}
-  >
-    <Avatar.Image size={60} source={{ uri: user?.avatarUrl }} />
-  </TouchableRipple>
-  <Text style={styles.username}>{user?.name}</Text>
-</View>
+        <TouchableRipple
+          onPress={() => router.push('/profile')}
+          borderless
+          rippleColor="rgba(0, 0, 0, .1)"
+          style={{ borderRadius: 30 }}
+        >
+          <Avatar.Image size={60} source={{ uri: user?.avatarUrl }} />
+        </TouchableRipple>
+        <Text style={styles.username}>{user?.name}</Text>
       </View>
-      <ScrollView style={styles.links}>
+      <DrawerContentScrollView>
         {displayedLinks.map((link) => (
-          <Drawer.Item          
+          <DrawerItem
             key={link.label}
             label={link.label}
             onPress={() => router.push(link.href as any)}
-            
           />
         ))}
-        <Drawer.Item label="Logout" icon="logout" onPress={handleLogout} />
-      </ScrollView>
+        <DrawerItem
+          label="Logout"
+          icon={({ color, size }) => (
+            <Avatar.Icon
+              icon="logout"
+              color={color}
+              size={size}
+              style={{ backgroundColor: 'transparent' }}
+            />
+          )}
+          onPress={handleLogout}
+        />
+      </DrawerContentScrollView>
     </View>
   );
 }
-
-
 
 const styles = StyleSheet.create({
   drawerContainer: {
@@ -135,8 +124,4 @@ const styles = StyleSheet.create({
     fontWeight: '600',
     color: '#2F855A',
   },
-  links: {
-    paddingHorizontal: 10,
-  },
- 
 });
